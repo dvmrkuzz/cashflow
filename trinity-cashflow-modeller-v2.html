@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trinity Cashflow Modeller | Trinity Capital Partners</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --coral:#ff4a57;--slate:#6b7a8f;--navy:#151d26;--navy2:#1f2937;
+  --white:#fff;--off:#f4f5f6;--line:#e2e4e8;
+  --green:#27ae60;--amber:#f39c12;--red:#e74c3c;
+}
+html,body{height:100%}
+body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);font-size:13px}
+
+/* TOPBAR */
+.topbar{background:var(--navy);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:2px solid var(--coral)}
+.topbar-left{display:flex;align-items:center;gap:.8rem}
+.topbar-left img{height:28px}
+.topbar-tag{font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);border-left:1px solid rgba(255,255,255,.12);padding-left:.8rem}
+.topbar-right{display:flex;gap:.5rem}
+.btn-primary{background:var(--coral);color:#fff;font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:none;padding:.55rem 1.2rem;cursor:pointer;transition:background .2s}
+.btn-primary:hover{background:#e03040}
+.btn-secondary{background:transparent;color:rgba(255,255,255,.45);font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.15);padding:.55rem 1rem;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:210px 1fr;height:calc(100vh - 46px)}
+.sidebar{background:var(--navy2);border-right:1px solid rgba(255,255,255,.06);overflow-y:auto;padding:1rem 0}
+.nav-group{margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.05)}
+.nav-group-label{font-family:'Poppins',sans-serif;font-size:.55rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.22);padding:.3rem 1rem .2rem}
+.nav-btn{display:block;width:100%;text-align:left;font-family:'Open Sans',sans-serif;font-size:.78rem;color:rgba(255,255,255,.48);background:transparent;border:none;padding:.42rem .9rem;cursor:pointer;transition:all .15s}
+.nav-btn:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.8)}
+.nav-btn.active{background:rgba(255,74,87,.15);color:var(--coral);font-weight:600}
+
+.main{overflow-y:auto;padding:1.5rem}
+.panel{display:none}
+.panel.active{display:block;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* CARDS & FORMS */
+.panel-hd{margin-bottom:1rem}
+.panel-hd h2{font-family:'Poppins',sans-serif;font-size:.92rem;font-weight:700;color:var(--navy)}
+.panel-hd p{font-size:.75rem;color:var(--slate);margin-top:.2rem}
+.card{background:var(--white);border:1px solid var(--line);padding:1.2rem;margin-bottom:.8rem}
+.card-hd{font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem 1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem 1rem}
+.grid1{display:grid;grid-template-columns:1fr;gap:.6rem}
+.f{display:flex;flex-direction:column;gap:.22rem}
+.f label{font-family:'Poppins',sans-serif;font-size:.6rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--slate)}
+.f input,.f select{font-family:'Open Sans',sans-serif;font-size:.82rem;color:var(--navy);border:1px solid var(--line);padding:.45rem .6rem;outline:none;transition:border-color .2s;background:var(--white);width:100%;-moz-appearance:textfield}
+.f input:focus,.f select:focus{border-color:var(--coral)}
+.f input::-webkit-outer-spin-button,.f input::-webkit-inner-spin-button{-webkit-appearance:none}
+.pfx-wrap{display:flex}
+.pfx{background:var(--off);border:1px solid var(--line);border-right:none;padding:0 .55rem;display:flex;align-items:center;font-family:'Poppins',sans-serif;font-size:.78rem;font-weight:600;color:var(--slate)}
+.pfx-wrap input{border-left:none;flex:1}
+.hint{font-size:.65rem;color:var(--slate);margin-top:.1rem}
+
+/* TOGGLE */
+.tog-row{display:flex;align-items:center;gap:.6rem;margin:.6rem 0 .8rem}
+.tog-lbl{font-family:'Poppins',sans-serif;font-size:.78rem;font-weight:600;color:var(--navy)}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.tslider{position:absolute;cursor:pointer;inset:0;background:var(--line);border-radius:20px;transition:.3s}
+.tslider::before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.tslider{background:var(--coral)}
+.toggle input:checked+.tslider::before{transform:translateX(16px)}
+
+/* REPEATER */
+.rep-item{background:var(--off);border:1px solid var(--line);padding:.9rem 1rem;margin-bottom:.5rem;position:relative}
+.rep-item .rm{position:absolute;top:.6rem;right:.7rem;background:none;border:none;color:var(--slate);cursor:pointer;font-size:.9rem;transition:color .2s}
+.rep-item .rm:hover{color:var(--red)}
+.add-btn{background:transparent;border:1px dashed var(--line);color:var(--slate);font-family:'Poppins',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.5rem .9rem;cursor:pointer;transition:all .2s;width:100%;margin-top:.2rem}
+.add-btn:hover{border-color:var(--coral);color:var(--coral)}
+
+/* RESULTS */
+.res-header{background:var(--navy);padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:flex-start}
+.res-client{font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:700;color:#fff}
+.res-meta{font-size:.72rem;color:rgba(255,255,255,.38);margin-top:.2rem;line-height:1.6}
+.res-date{font-family:'Poppins',sans-serif;font-size:.62rem;color:rgba(255,255,255,.28);text-align:right}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1rem}
+.kpi{background:var(--white);border:1px solid var(--line);padding:1rem 1.2rem;border-top:3px solid var(--line)}
+.kpi.g{border-top-color:var(--green)}.kpi.a{border-top-color:var(--amber)}.kpi.r{border-top-color:var(--red)}
+.kpi-val{font-family:'Poppins',sans-serif;font-size:1.3rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:.25rem}
+.kpi-lbl{font-size:.68rem;color:var(--slate);line-height:1.4}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem}
+.ch-card{background:var(--white);border:1px solid var(--line);padding:1rem 1.2rem}
+.ch-title{font-family:'Poppins',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);margin-bottom:.8rem}
+.ch-wrap{height:220px}
+.assumptions-bar{background:var(--white);border:1px solid var(--line);padding:.8rem 1.2rem;margin-bottom:1rem;display:flex;gap:1.5rem;flex-wrap:wrap}
+.ass{font-size:.7rem;color:var(--slate)}.ass strong{color:var(--navy);font-weight:600}
+.tbl-wrap{background:var(--white);border:1px solid var(--line);overflow-x:auto;margin-bottom:1rem}
+.cft{width:100%;border-collapse:collapse;font-size:.74rem}
+.cft thead tr{background:var(--navy)}
+.cft thead th{font-family:'Poppins',sans-serif;font-size:.58rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.55);padding:.6rem .9rem;text-align:right;white-space:nowrap}
+.cft thead th:first-child{text-align:left}
+.cft tbody tr{border-bottom:1px solid var(--line)}
+.cft tbody tr:hover{background:var(--off)}
+.cft tbody tr.retire-yr{background:rgba(255,74,87,.04)}
+.cft tbody tr.retire-yr td:first-child{border-left:3px solid var(--coral);padding-left:.6rem}
+.cft td{padding:.45rem .9rem;text-align:right;color:var(--navy)}
+.cft td:first-child{text-align:left;font-family:'Poppins',sans-serif;font-weight:600;font-size:.72rem}
+.cft .sur{color:var(--green);font-weight:600}.cft .def{color:var(--red);font-weight:600}
+.cft tfoot td{font-family:'Poppins',sans-serif;font-size:.65rem;color:var(--slate);padding:.6rem .9rem;border-top:2px solid var(--line)}
+.empty{text-align:center;padding:3rem;background:var(--white);border:1px solid var(--line)}
+.empty h3{font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:700;color:var(--navy);margin-bottom:.4rem}
+.empty p{font-size:.78rem;color:var(--slate)}
+
+/* ── CONFIRM MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(21,29,38,.55);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:500}
+.modal-overlay.open{display:flex;animation:mfade .18s ease}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--white);border-top:3px solid var(--coral);width:380px;max-width:90vw;padding:1.5rem 1.6rem;box-shadow:0 20px 60px rgba(21,29,38,.35);animation:mpop .2s ease}
+@keyframes mpop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+.modal-icon{width:38px;height:38px;border-radius:50%;background:rgba(255,74,87,.1);color:var(--coral);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:.8rem}
+.modal-title{font-family:'Poppins',sans-serif;font-size:.92rem;font-weight:700;color:var(--navy);margin-bottom:.35rem}
+.modal-text{font-size:.78rem;color:var(--slate);line-height:1.6;margin-bottom:1.2rem}
+.modal-actions{display:flex;gap:.5rem;justify-content:flex-end}
+.modal-btn{font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.55rem 1.2rem;cursor:pointer;border:none;transition:all .2s}
+.modal-btn.cancel{background:transparent;color:var(--slate);border:1px solid var(--line)}
+.modal-btn.cancel:hover{border-color:var(--slate);color:var(--navy)}
+.modal-btn.danger{background:var(--coral);color:#fff}
+.modal-btn.danger:hover{background:#e03040}
+@media print{.modal-overlay{display:none!important}}
+
+/* ── PRINT HEADER (screen: hidden, print: visible) ── */
+.print-cover{display:none}
+
+@media print{
+  @page{margin:1.2cm 1.4cm;size:A4}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+
+  .topbar,.sidebar,.topbar-actions,.add-btn,.rm,.btn-primary,.btn-secondary{display:none!important}
+  .app{grid-template-columns:1fr;height:auto;display:block}
+  .main{padding:0;overflow:visible}
+  .panel{display:none!important}
+  .panel#panel-results{display:block!important}
+
+  /* BRANDED PRINT COVER HEADER */
+  .print-cover{
+    display:flex!important;
+    align-items:flex-start;justify-content:space-between;
+    background:#151d26!important;
+    padding:1.4rem 1.8rem;
+    margin-bottom:1.2rem;
+    border-bottom:3px solid #ff4a57!important;
+    page-break-after:avoid;
+  }
+  .pc-left{}
+  .pc-logo{height:32px;margin-bottom:.8rem;filter:brightness(0) invert(1)}
+  .pc-title{
+    font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;
+    color:#ffffff!important;margin-bottom:.2rem;
+  }
+  .pc-subtitle{
+    font-family:'Open Sans',sans-serif;font-size:.72rem;
+    color:rgba(255,255,255,.45)!important;line-height:1.6;
+  }
+  .pc-right{text-align:right}
+  .pc-tag{
+    font-family:'Poppins',sans-serif;font-size:.55rem;font-weight:600;
+    letter-spacing:.2em;text-transform:uppercase;
+    color:#ff4a57!important;margin-bottom:.5rem;
+  }
+  .pc-contact{
+    font-family:'Open Sans',sans-serif;font-size:.65rem;
+    color:rgba(255,255,255,.38)!important;line-height:1.8;
+  }
+  .pc-beyond{
+    font-family:'Poppins',sans-serif;font-size:.58rem;font-weight:700;
+    letter-spacing:.3em;text-transform:uppercase;
+    color:rgba(255,255,255,.2)!important;margin-top:.6rem;
+  }
+
+  /* HIDE SCREEN RESULTS HEADER — replaced by print cover */
+  .res-header{display:none!important}
+
+  /* KPI ROW */
+  .kpi-row{
+    display:grid!important;grid-template-columns:repeat(4,1fr)!important;
+    gap:.6rem!important;margin-bottom:.9rem!important;
+  }
+  .kpi{
+    background:#f4f5f6!important;
+    border:1px solid #e2e4e8!important;
+    padding:.8rem 1rem!important;
+    border-top:3px solid #e2e4e8!important;
+    break-inside:avoid;
+  }
+  .kpi.g{border-top-color:#27ae60!important}
+  .kpi.a{border-top-color:#f39c12!important}
+  .kpi.r{border-top-color:#e74c3c!important}
+  .kpi-val{font-size:1.1rem!important;color:#151d26!important}
+  .kpi-lbl{font-size:.62rem!important}
+
+  /* ASSUMPTIONS BAR */
+  .assumptions-bar{
+    background:#f4f5f6!important;border:1px solid #e2e4e8!important;
+    padding:.6rem 1rem!important;margin-bottom:.9rem!important;
+    display:flex!important;gap:1.2rem!important;flex-wrap:wrap!important;
+  }
+  .ass{font-size:.65rem!important}
+
+  /* CHARTS */
+  .chart-row{
+    display:grid!important;grid-template-columns:1fr 1fr!important;
+    gap:.8rem!important;margin-bottom:.9rem!important;
+    page-break-inside:avoid;
+  }
+  .ch-card{
+    background:#fff!important;border:1px solid #e2e4e8!important;
+    padding:.8rem 1rem!important;
+  }
+  .ch-title{font-size:.58rem!important;margin-bottom:.5rem!important}
+  .ch-wrap{height:180px!important}
+
+  /* TABLE */
+  .tbl-wrap{overflow:visible!important;margin-bottom:.9rem!important}
+  .cft{font-size:.65rem!important}
+  .cft thead tr{background:#151d26!important}
+  .cft thead th{font-size:.55rem!important;padding:.45rem .6rem!important;color:rgba(255,255,255,.65)!important}
+  .cft td{padding:.35rem .6rem!important}
+  .cft tfoot td{font-size:.58rem!important;padding:.45rem .6rem!important}
+
+  /* PRINT FOOTER */
+  .print-footer{
+    display:flex!important;
+    justify-content:space-between;align-items:flex-start;
+    border-top:2px solid #ff4a57!important;
+    padding-top:.8rem;margin-top:.8rem;
+    page-break-inside:avoid;
+  }
+  .pf-disc{font-size:.6rem!important;color:#6b7a8f!important;line-height:1.65;max-width:75%}
+  .pf-reg{font-size:.58rem!important;color:#cdcdcd!important;text-align:right;line-height:1.6}
+
+  .chart-row,.kpi-row{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img src="https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2164943316/settings_images/0d42421-a8b2-8db3-67c-f6a46ae4756b_TCP-light.png" alt="Trinity">
+    <span class="topbar-tag">Trinity Cashflow Modeller</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-secondary" onclick="clearAll()">↺ Clear</button>
+    <button class="btn-secondary" onclick="window.print()">⎙ Print / PDF</button>
+    <button class="btn-secondary" onclick="exportAndEmail()">✉ Send to Onboarding</button>
+    <button class="btn-primary" onclick="runModel()">▶ Run Projection</button>
+  </div>
+</div>
+
+<div class="app">
+<nav class="sidebar">
+  <div class="nav-group">
+    <p class="nav-group-label">Client</p>
+    <button class="nav-btn active" onclick="show('client')">Personal Details</button>
+    <button class="nav-btn" onclick="show('income')">Employment Income</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-group-label">Pensions</p>
+    <button class="nav-btn" onclick="show('dc')">DC / SIPP</button>
+    <button class="nav-btn" onclick="show('db')">Defined Benefit</button>
+    <button class="nav-btn" onclick="show('sp')">State Pension</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-group-label">Assets</p>
+    <button class="nav-btn" onclick="show('isa')">ISA</button>
+    <button class="nav-btn" onclick="show('gia')">Other Investments</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-group-label">Expenditure</p>
+    <button class="nav-btn" onclick="show('spend')">Retirement Spending</button>
+    <button class="nav-btn" onclick="show('lumps')">One-Off Events</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-group-label">Assumptions</p>
+    <button class="nav-btn" onclick="show('ass')">Growth & Inflation</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-group-label">Output</p>
+    <button class="nav-btn" onclick="runModel()">📊 Run & View Results</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- CLIENT -->
+<div class="panel active" id="panel-client">
+  <div class="panel-hd"><h2>Personal Details</h2><p>Enter client details. Enable partner toggle for joint cashflow.</p></div>
+  <div class="card">
+    <p class="card-hd">Client 1</p>
+    <div class="grid3">
+      <div class="f"><label>Full Name</label><input type="text" id="c1name" placeholder="e.g. John Smith"></div>
+      <div class="f"><label>Current Age</label><input type="number" id="c1age" placeholder="58" min="18" max="85"></div>
+      <div class="f"><label>Retirement Age</label><input type="number" id="c1ret" placeholder="65" min="55" max="80"></div>
+      <div class="f"><label>Life Expectancy</label><input type="number" id="c1le" placeholder="90" value="90" min="70" max="100"></div>
+      <div class="f"><label>Report Date</label><input type="date" id="repdate"></div>
+    </div>
+  </div>
+  <div class="tog-row">
+    <label class="toggle"><input type="checkbox" id="partnerOn" onchange="togglePartner()"><span class="tslider"></span></label>
+    <span class="tog-lbl">Include Partner / Spouse</span>
+  </div>
+  <div class="card" id="c2card" style="display:none">
+    <p class="card-hd">Client 2 / Partner</p>
+    <div class="grid3">
+      <div class="f"><label>Full Name</label><input type="text" id="c2name" placeholder="e.g. Jane Smith"></div>
+      <div class="f"><label>Current Age</label><input type="number" id="c2age" placeholder="55" min="18" max="85"></div>
+      <div class="f"><label>Retirement Age</label><input type="number" id="c2ret" placeholder="63" min="55" max="80"></div>
+      <div class="f"><label>Life Expectancy</label><input type="number" id="c2le" placeholder="92" value="92" min="70" max="100"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INCOME -->
+<div class="panel" id="panel-income">
+  <div class="panel-hd"><h2>Employment Income</h2><p>Pre-retirement earned income. Ceases at retirement age. Net of tax for projection purposes.</p></div>
+  <div class="card">
+    <p class="card-hd">Client 1</p>
+    <div class="grid2">
+      <div class="f"><label>Net Annual Income (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="c1inc" placeholder="0"></div><span class="hint">Use net (after tax) figure for accuracy</span></div>
+      <div class="f"><label>Status</label><select id="c1status"><option value="employed">Employed</option><option value="self">Self-Employed</option><option value="retired">Already Retired</option></select></div>
+    </div>
+  </div>
+  <div class="card" id="c2inccard" style="display:none">
+    <p class="card-hd">Client 2 / Partner</p>
+    <div class="grid2">
+      <div class="f"><label>Net Annual Income (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="c2inc" placeholder="0"></div></div>
+      <div class="f"><label>Status</label><select id="c2status"><option value="employed">Employed</option><option value="self">Self-Employed</option><option value="retired">Already Retired</option></select></div>
+    </div>
+  </div>
+</div>
+
+<!-- DC -->
+<div class="panel" id="panel-dc">
+  <div class="panel-hd"><h2>DC Pensions / SIPPs</h2><p>All defined contribution pots — workplace, personal pension, SIPP. Add one row per pot.</p></div>
+  <div id="dc-list"></div>
+  <button class="add-btn" onclick="addDC()">+ Add DC Pension / SIPP</button>
+</div>
+
+<!-- DB -->
+<div class="panel" id="panel-db">
+  <div class="panel-hd"><h2>Defined Benefit Pensions</h2><p>Final salary or career average benefits. Enter the projected annual pension at commencement.</p></div>
+  <div id="db-list"></div>
+  <button class="add-btn" onclick="addDB()">+ Add DB Pension</button>
+</div>
+
+<!-- STATE PENSION -->
+<div class="panel" id="panel-sp">
+  <div class="panel-hd"><h2>State Pension</h2><p>Full new State Pension is £11,502/year (2024/25). Use government gateway forecast where available.</p></div>
+  <div class="card">
+    <p class="card-hd">Client 1</p>
+    <div class="grid3">
+      <div class="f"><label>Annual Amount (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="c1sp" placeholder="11502"></div></div>
+      <div class="f"><label>State Pension Age</label><input type="number" id="c1spAge" value="67"></div>
+      <div class="f"><label>Escalation</label><select id="c1spEsc"><option value="0.03">Triple Lock (3%)</option><option value="cpi">CPI</option><option value="0">Flat</option></select></div>
+    </div>
+  </div>
+  <div class="card" id="c2spcard" style="display:none">
+    <p class="card-hd">Client 2 / Partner</p>
+    <div class="grid3">
+      <div class="f"><label>Annual Amount (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="c2sp" placeholder="11502"></div></div>
+      <div class="f"><label>State Pension Age</label><input type="number" id="c2spAge" value="67"></div>
+      <div class="f"><label>Escalation</label><select id="c2spEsc"><option value="0.03">Triple Lock (3%)</option><option value="cpi">CPI</option><option value="0">Flat</option></select></div>
+    </div>
+  </div>
+</div>
+
+<!-- ISA -->
+<div class="panel" id="panel-isa">
+  <div class="panel-hd"><h2>ISA</h2><p>Stocks & Shares and Cash ISA combined. Contributions stop at retirement by default.</p></div>
+  <div class="card">
+    <div class="grid3">
+      <div class="f"><label>Current Value (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="isaVal" placeholder="0"></div></div>
+      <div class="f"><label>Monthly Contributions (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="isaContrib" placeholder="0"></div></div>
+      <div class="f"><label>Stop Contributing at Age</label><input type="number" id="isaStop" placeholder="65"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GIA -->
+<div class="panel" id="panel-gia">
+  <div class="panel-hd"><h2>Other Investments</h2><p>GIA, investment bonds, offshore bonds, or any other investable assets.</p></div>
+  <div class="card">
+    <div class="grid2">
+      <div class="f"><label>Current Value (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="giaVal" placeholder="0"></div></div>
+      <div class="f"><label>Description</label><input type="text" id="giaDesc" placeholder="e.g. GIA with Transact"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SPEND -->
+<div class="panel" id="panel-spend">
+  <div class="panel-hd"><h2>Retirement Spending</h2><p>Total annual expenditure needed in retirement. Inflation-adjusted automatically.</p></div>
+  <div class="card">
+    <div class="grid3">
+      <div class="f"><label>Annual Spend in Retirement (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="retSpend" placeholder="30000"></div><span class="hint">Total gross lifestyle spend</span></div>
+      <div class="f"><label>Reduced Spend from Age</label><input type="number" id="spendReduceAge" placeholder="e.g. 80"><span class="hint">Leave blank if constant</span></div>
+      <div class="f"><label>Reduced Amount (£/yr)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="retSpend2" placeholder="0"></div><span class="hint">e.g. less travel in later years</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- LUMP SUMS -->
+<div class="panel" id="panel-lumps">
+  <div class="panel-hd"><h2>One-Off Events</h2><p>Gifts, home improvements, holidays, school fees etc. Entered as age and lump sum amount.</p></div>
+  <div id="lump-list"></div>
+  <button class="add-btn" onclick="addLump()">+ Add One-Off Event</button>
+</div>
+
+<!-- ASSUMPTIONS -->
+<div class="panel" id="panel-ass">
+  <div class="panel-hd"><h2>Growth & Inflation Assumptions</h2><p>Applied consistently across all asset classes. Override per-asset in the relevant sections if needed.</p></div>
+  <div class="card">
+    <div class="card-hd">Gross Growth & Inflation</div>
+    <div class="grid3">
+      <div class="f"><label>Pension / SIPP Growth Rate (%)</label><input type="number" id="assGrowth" value="5" step="0.1" min="0" max="12"><span class="hint">Gross — before charges</span></div>
+      <div class="f"><label>ISA / GIA Growth Rate (%)</label><input type="number" id="assISAGrowth" value="5" step="0.1" min="0" max="12"><span class="hint">Gross — before charges</span></div>
+      <div class="f"><label>Inflation Rate (%)</label><input type="number" id="assInflation" value="2.5" step="0.1" min="0" max="8"><span class="hint">Applied to spending and income escalation</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Charges (deducted annually from gross growth)</div>
+    <div class="grid3">
+      <div class="f"><label>DC / SIPP — Total Charges (%)</label><input type="number" id="feeDC" value="1.5" step="0.05" min="0" max="5"><span class="hint">Platform + DFM/MPS + adviser fee combined</span></div>
+      <div class="f"><label>ISA — Total Charges (%)</label><input type="number" id="feeISA" value="1.5" step="0.05" min="0" max="5"><span class="hint">Platform + DFM/MPS + adviser fee combined</span></div>
+      <div class="f"><label>GIA — Total Charges (%)</label><input type="number" id="feeGIA" value="1.5" step="0.05" min="0" max="5"><span class="hint">Platform + DFM/MPS + adviser fee combined</span></div>
+    </div>
+    <p style="font-size:.7rem;color:var(--slate);margin-top:.6rem;line-height:1.6">Net growth applied each year = gross growth − total charges. For an LGT MPS client on a typical platform with our 0.8% adviser fee, this would usually be in the 1.3–1.7% range. Override per-wrapper if charges differ materially.</p>
+  </div>
+  <div class="card" style="background:rgba(255,74,87,.03);border-color:rgba(255,74,87,.2)">
+    <p style="font-family:'Poppins',sans-serif;font-size:.7rem;font-weight:600;color:var(--slate);margin-bottom:.3rem">⚠ Illustration Basis</p>
+    <p style="font-size:.72rem;color:var(--slate);line-height:1.7">These projections are illustrative only. Growth is shown net of the charges entered above, but they do not account for tax on withdrawals, sequencing risk, or changes in legislation. This tool is for internal paraplanner use in preparing client reports. It should not be shared directly with clients as financial advice.</p>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="panel" id="panel-results">
+  <div id="results-content">
+    <div class="empty"><h3>No projection run yet</h3><p>Complete the input sections and click <strong>Run Projection</strong> to generate the cashflow.</p></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- CLEAR CONFIRM MODAL -->
+<div class="modal-overlay" id="clearModal" onclick="if(event.target===this)closeClearModal()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle">
+    <div class="modal-icon">⚠</div>
+    <div class="modal-title" id="clearModalTitle">Clear all inputs?</div>
+    <div class="modal-text">This will remove every client detail, pension, asset and assumption override you've entered. This can't be undone.</div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeClearModal()">Cancel</button>
+      <button class="modal-btn danger" onclick="confirmClear()">Clear everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT / EMAIL MODAL -->
+<div class="modal-overlay" id="emailModal" onclick="if(event.target===this)closeEmailModal()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+    <div class="modal-icon">✉</div>
+    <div class="modal-title" id="emailModalTitle">Case file downloaded</div>
+    <div class="modal-text" id="emailModalText"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" id="emailMailtoBtn" onclick="openEmailDraft()" style="display:none">Open email draft</button>
+      <button class="modal-btn danger" id="emailCloseBtn" onclick="closeEmailModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAV ──
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function togglePartner() {
+  const on = document.getElementById('partnerOn').checked;
+  ['c2card','c2inccard','c2spcard'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = on ? 'block' : 'none';
+  });
+}
+
+// ── REPEATER COUNTERS ──
+let dcCount = 0, dbCount = 0, lumpCount = 0;
+
+function addDC() {
+  const i = dcCount++;
+  const div = document.createElement('div');
+  div.className = 'rep-item'; div.id = 'dc-' + i;
+  div.innerHTML = `
+    <button class="rm" onclick="document.getElementById('dc-${i}').remove()">✕</button>
+    <div class="grid3" style="margin-bottom:.5rem">
+      <div class="f"><label>Description</label><input type="text" id="dc${i}desc" placeholder="e.g. Aegon SIPP"></div>
+      <div class="f"><label>Owner</label><select id="dc${i}owner"><option value="c1">Client 1</option><option value="c2">Client 2</option></select></div>
+      <div class="f"><label>Retirement / Drawdown Age</label><input type="number" id="dc${i}age" placeholder="65"></div>
+    </div>
+    <div class="grid3">
+      <div class="f"><label>Current Value (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="dc${i}val" placeholder="0"></div></div>
+      <div class="f"><label>Monthly Employee Contribution (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="dc${i}contrib" placeholder="0"></div></div>
+      <div class="f"><label>Monthly Employer Contribution (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="dc${i}employer" placeholder="0"></div></div>
+    </div>`;
+  document.getElementById('dc-list').appendChild(div);
+}
+
+function addDB() {
+  const i = dbCount++;
+  const div = document.createElement('div');
+  div.className = 'rep-item'; div.id = 'db-' + i;
+  div.innerHTML = `
+    <button class="rm" onclick="document.getElementById('db-${i}').remove()">✕</button>
+    <div class="grid3" style="margin-bottom:.5rem">
+      <div class="f"><label>Scheme Name</label><input type="text" id="db${i}desc" placeholder="e.g. NHS Pension"></div>
+      <div class="f"><label>Owner</label><select id="db${i}owner"><option value="c1">Client 1</option><option value="c2">Client 2</option></select></div>
+      <div class="f"><label>Commencement Age</label><input type="number" id="db${i}age" placeholder="65"></div>
+    </div>
+    <div class="grid3">
+      <div class="f"><label>Annual Pension at Commencement (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="db${i}amt" placeholder="0"></div></div>
+      <div class="f"><label>Escalation (%/yr)</label><input type="number" id="db${i}esc" placeholder="2.5" step="0.1" value="2.5"></div>
+      <div class="f"><label>Spouse Pension on Death (%)</label><input type="number" id="db${i}spouse" placeholder="50" value="50"><span class="hint">% of pension paid to survivor</span></div>
+    </div>`;
+  document.getElementById('db-list').appendChild(div);
+}
+
+function addLump() {
+  const i = lumpCount++;
+  const div = document.createElement('div');
+  div.className = 'rep-item'; div.id = 'lump-' + i;
+  div.innerHTML = `
+    <button class="rm" onclick="document.getElementById('lump-${i}').remove()">✕</button>
+    <div class="grid3">
+      <div class="f"><label>Description</label><input type="text" id="lump${i}desc" placeholder="e.g. Kitchen renovation"></div>
+      <div class="f"><label>Client Age at Event</label><input type="number" id="lump${i}age" placeholder="68"></div>
+      <div class="f"><label>Amount (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="lump${i}amt" placeholder="0"></div></div>
+    </div>`;
+  document.getElementById('lump-list').appendChild(div);
+}
+
+// ── HELPERS ──
+function v(id) { const el = document.getElementById(id); return el ? parseFloat(el.value) || 0 : 0; }
+function s(id) { const el = document.getElementById(id); return el ? el.value || '' : ''; }
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  const abs = Math.abs(n);
+  const sign = n < 0 ? '-' : '';
+  if (abs >= 1000000) return sign + '£' + (abs/1000000).toFixed(2).replace(/\.?0+$/,'') + 'm';
+  return sign + '£' + Math.round(abs).toLocaleString();
+}
+function fmtK(n) {
+  if (!n) return '£0';
+  return '£' + Math.round(Math.abs(n)/1000) + 'k';
+}
+
+// ── CLEAR (custom modal with audio) ──
+let audioCtx = null;
+function playTone(freqs, dur, type, vol) {
+  // Small synthesised UI sound via Web Audio — no external file needed
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const t0 = audioCtx.currentTime;
+    freqs.forEach((f, i) => {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, t0 + i * dur);
+      g.gain.linearRampToValueAtTime(vol || 0.12, t0 + i * dur + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * dur + dur);
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(t0 + i * dur);
+      osc.stop(t0 + i * dur + dur + 0.05);
+    });
+  } catch (e) { /* audio unsupported — fail silently */ }
+}
+function soundAlert()   { playTone([660, 520], 0.14, 'sine', 0.12); }   // two-note warning on open
+function soundConfirm() { playTone([520, 660, 880], 0.09, 'sine', 0.10); } // rising sweep on clear
+function soundCancel()  { playTone([440], 0.10, 'sine', 0.07); }         // soft blip on cancel
+
+function clearAll() {
+  document.getElementById('clearModal').classList.add('open');
+  soundAlert();
+}
+function closeClearModal() {
+  document.getElementById('clearModal').classList.remove('open');
+  soundCancel();
+}
+function confirmClear() {
+  document.querySelectorAll('input[type="number"],input[type="text"],input[type="date"]').forEach(el => {
+    if (!['c1le','c2le','c1spAge','c2spAge','assGrowth','assISAGrowth','assInflation'].includes(el.id)) el.value = '';
+  });
+  document.getElementById('dc-list').innerHTML = '';
+  document.getElementById('db-list').innerHTML = '';
+  document.getElementById('lump-list').innerHTML = '';
+  dcCount = dbCount = lumpCount = 0;
+  document.getElementById('clearModal').classList.remove('open');
+  soundConfirm();
+}
+// Esc key closes the modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('clearModal').classList.contains('open')) closeClearModal();
+  if (e.key === 'Escape' && document.getElementById('emailModal').classList.contains('open')) closeEmailModal();
+});
+
+// ── GENERATE PDF + SEND VIA SERVER ──
+const SEND_ENDPOINT = '/.netlify/functions/send-report';
+let lastExportName = '';
+
+function exportAndEmail() {
+  const res = document.getElementById('results-content');
+  if (!res || res.querySelector('.empty')) {
+    showEmailModal('No projection yet', 'Run the projection first — there is no report to send.', false);
+    return;
+  }
+
+  const clientName = (s('c1name') || 'Unnamed client').trim();
+  const safeName = clientName.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
+  const stamp = new Date().toISOString().slice(0, 10);
+  lastExportName = `Trinity-Cashflow-${safeName}-${stamp}.pdf`;
+  const reportDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Switch the results panel into its branded print form for the render
+  const cover = res.querySelector('.print-cover');
+  const footer = res.querySelector('.print-footer');
+  const screenHd = res.querySelector('.res-header');
+  const prev = {
+    cover: cover ? cover.style.display : null,
+    footer: footer ? footer.style.display : null,
+    hd: screenHd ? screenHd.style.display : null
+  };
+  if (cover) cover.style.display = 'flex';
+  if (footer) footer.style.display = 'flex';
+  if (screenHd) screenHd.style.display = 'none';
+  const restore = () => {
+    if (cover) cover.style.display = prev.cover;
+    if (footer) footer.style.display = prev.footer;
+    if (screenHd) screenHd.style.display = prev.hd;
+  };
+
+  showEmailModal('Preparing report…', 'Generating the PDF and sending it to client onboarding.', false, true);
+
+  html2pdf().set({
+    margin: [8, 8, 8, 8],
+    filename: lastExportName,
+    image: { type: 'jpeg', quality: 0.96 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.kpi-row', '.chart-row', '.ch-card'] }
+  }).from(res).outputPdf('blob').then(blob => {
+    restore();
+    return blobToBase64(blob).then(b64 => ({ blob, b64 }));
+  }).then(({ blob, b64 }) => {
+    return fetch(SEND_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: lastExportName,
+        pdfBase64: b64,
+        clientName: clientName,
+        reportDate: reportDate,
+        preparedBy: ''
+      })
+    }).then(async r => {
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || 'Send failed.');
+      soundConfirm();
+      showEmailModal(
+        'Sent to client onboarding',
+        `<strong style="color:var(--navy);word-break:break-all">${lastExportName}</strong> has been emailed to ` +
+        `<strong style="color:var(--navy)">clientonboarding@trinitycapitalpartners.co.uk</strong>.`,
+        false
+      );
+    }).catch(err => {
+      // Fall back to a local download so the work isn't lost
+      downloadBlob(blob, lastExportName);
+      showEmailModal(
+        'Could not send automatically',
+        `${escapeText(err.message)}<br><br>The PDF has been downloaded instead — please attach it to an email to ` +
+        `<strong style="color:var(--navy)">clientonboarding@trinitycapitalpartners.co.uk</strong>.`,
+        true
+      );
+    });
+  }).catch(err => {
+    restore();
+    console.error(err);
+    showEmailModal('PDF generation failed', 'Use the Print / PDF button instead.', false);
+  });
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1]);
+    r.onerror = () => reject(new Error('Could not read the generated PDF.'));
+    r.readAsDataURL(blob);
+  });
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function escapeText(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+
+function showEmailModal(title, html, showMailto, busy) {
+  document.getElementById('emailModalTitle').textContent = title;
+  document.getElementById('emailModalText').innerHTML = html;
+  document.getElementById('emailMailtoBtn').style.display = showMailto ? '' : 'none';
+  document.getElementById('emailCloseBtn').style.display = busy ? 'none' : '';
+  document.getElementById('emailModal').classList.add('open');
+}
+
+function openEmailDraft() {
+  const clientName = (s('c1name') || 'Unnamed client').trim();
+  const reportDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const subject = `Cashflow projection — ${clientName} — ${reportDate}`;
+  const body =
+    `Hi,\n\nPlease find attached the illustrative cashflow projection for ${clientName}, prepared ${reportDate}.\n\n` +
+    `Attachment: ${lastExportName} (attach from your Downloads folder before sending).\n\n` +
+    `Note: this projection is illustrative only and does not constitute regulated financial advice.\n\nKind regards\n`;
+  window.location.href = `mailto:clientonboarding@trinitycapitalpartners.co.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  closeEmailModal();
+}
+
+function closeEmailModal() {
+  document.getElementById('emailModal').classList.remove('open');
+}
+
+// ── MODEL ──
+let ch1 = null, ch2 = null, ch3 = null;
+
+function runModel() {
+  // Collect inputs
+  const c1Age    = v('c1age')    || 58;
+  const c1Ret    = v('c1ret')    || 65;
+  const c1LE     = v('c1le')     || 90;
+  const c1Name   = s('c1name')   || 'Client 1';
+  const hasPartner = document.getElementById('partnerOn').checked;
+  const c2Age    = hasPartner ? (v('c2age') || 55) : null;
+  const c2Ret    = hasPartner ? (v('c2ret') || 63) : null;
+  const c2LE     = hasPartner ? (v('c2le') || 92) : null;
+  const c2Name   = s('c2name') || 'Client 2';
+
+  const growth    = v('assGrowth') / 100   || 0.05;
+  const isaGrowth = v('assISAGrowth') / 100|| 0.05;
+  const inflation = v('assInflation') / 100|| 0.025;
+
+  // Charges — deducted annually from gross growth (separate per wrapper)
+  const feeDC  = (v('feeDC')  || 0) / 100;
+  const feeISA = (v('feeISA') || 0) / 100;
+  const feeGIA = (v('feeGIA') || 0) / 100;
+
+  // Net growth applied each year
+  const netGrowthDC  = growth    - feeDC;
+  const netGrowthISA = isaGrowth - feeISA;
+  const netGrowthGIA = isaGrowth - feeGIA;
+
+  const c1Inc   = v('c1inc');
+  const c2Inc   = hasPartner ? v('c2inc') : 0;
+  const retSpend = v('retSpend')  || 30000;
+  const reduceAge = v('spendReduceAge');
+  const retSpend2 = v('retSpend2') || retSpend;
+
+  // DC pots
+  const dcPots = [];
+  document.querySelectorAll('[id^="dc-"]').forEach(item => {
+    const i = item.id.split('-')[1];
+    dcPots.push({
+      desc:     document.getElementById('dc'+i+'desc')?.value || 'DC Pension',
+      owner:    document.getElementById('dc'+i+'owner')?.value || 'c1',
+      retAge:   parseFloat(document.getElementById('dc'+i+'age')?.value) || c1Ret,
+      val:      parseFloat(document.getElementById('dc'+i+'val')?.value)  || 0,
+      contrib:  (parseFloat(document.getElementById('dc'+i+'contrib')?.value) || 0) +
+                (parseFloat(document.getElementById('dc'+i+'employer')?.value) || 0)
+    });
+  });
+
+  // DB pensions
+  const dbPots = [];
+  document.querySelectorAll('[id^="db-"]').forEach(item => {
+    const i = item.id.split('-')[1];
+    dbPots.push({
+      desc:   document.getElementById('db'+i+'desc')?.value || 'DB Pension',
+      owner:  document.getElementById('db'+i+'owner')?.value || 'c1',
+      age:    parseFloat(document.getElementById('db'+i+'age')?.value) || c1Ret,
+      amt:    parseFloat(document.getElementById('db'+i+'amt')?.value) || 0,
+      esc:    parseFloat(document.getElementById('db'+i+'esc')?.value) / 100 || 0.025
+    });
+  });
+
+  // State pension
+  const c1SP     = v('c1sp');
+  const c1SPAge  = v('c1spAge') || 67;
+  const c1SPEsc  = document.getElementById('c1spEsc')?.value === 'cpi' ? inflation : parseFloat(document.getElementById('c1spEsc')?.value) || 0.03;
+  const c2SP     = hasPartner ? v('c2sp') : 0;
+  const c2SPAge  = hasPartner ? (v('c2spAge') || 67) : 999;
+  const c2SPEsc  = document.getElementById('c2spEsc')?.value === 'cpi' ? inflation : parseFloat(document.getElementById('c2spEsc')?.value) || 0.03;
+
+  // ISA & GIA
+  let isaFund  = v('isaVal');
+  const isaCon = v('isaContrib') * 12;
+  const isaStop = v('isaStop') || c1Ret;
+  let giaFund  = v('giaVal');
+
+  // Lump sums (keyed by c1 age)
+  const lumps = {};
+  document.querySelectorAll('[id^="lump-"]').forEach(item => {
+    const i = item.id.split('-')[1];
+    const age = parseInt(document.getElementById('lump'+i+'age')?.value);
+    const amt = parseFloat(document.getElementById('lump'+i+'amt')?.value) || 0;
+    const desc = document.getElementById('lump'+i+'desc')?.value || 'One-off';
+    if (age && amt) { if (!lumps[age]) lumps[age] = []; lumps[age].push({amt, desc}); }
+  });
+
+  // Projection year by year
+  const endAge = Math.max(c1LE, hasPartner ? c2LE : 0);
+  const years = [];
+
+  // Initialise DC funds
+  let dcFunds = dcPots.map(p => p.val);
+
+  // DB escalated values (grow from commencement)
+  const dbStart = dbPots.map(() => null); // set when DB commences
+
+  let totalFund = 0;
+  let runoutAge = null;
+  let peakFund  = 0;
+  let totalIncome = 0, totalExpend = 0;
+
+  for (let age = c1Age; age <= endAge; age++) {
+    const yr = age - c1Age; // years elapsed
+    const retired1 = age >= c1Ret;
+    const retired2 = hasPartner ? (age >= c2Ret) : true;
+
+    // ── INCOME ──
+    let empInc = 0;
+    if (!retired1) empInc += c1Inc * Math.pow(1 + inflation, yr);
+    if (hasPartner && !retired2) empInc += c2Inc * Math.pow(1 + inflation, yr);
+
+    // DC contributions (pre-retirement)
+    dcPots.forEach((p, idx) => {
+      const ownerRetired = p.owner === 'c1' ? retired1 : retired2;
+      if (!ownerRetired) {
+        dcFunds[idx] += p.contrib * 12;
+      }
+      dcFunds[idx] *= (1 + netGrowthDC);
+    });
+
+    // ISA — track the actual contribution made this year
+    let isaContribThisYear = 0;
+    if (age < isaStop) {
+      isaContribThisYear = isaCon;
+      isaFund += isaCon;
+    }
+    isaFund *= (1 + netGrowthISA);
+    giaFund *= (1 + netGrowthGIA);
+
+    // DB income
+    let dbInc = 0;
+    dbPots.forEach((p, idx) => {
+      const ownerAge = p.owner === 'c1' ? age : (hasPartner ? age - (c1Age - c2Age) : age);
+      if (ownerAge >= p.age) {
+        if (dbStart[idx] === null) dbStart[idx] = p.amt;
+        else dbStart[idx] *= (1 + p.esc);
+        dbInc += dbStart[idx];
+      }
+    });
+
+    // State pension
+    let spInc = 0;
+    if (age >= c1SPAge) spInc += c1SP * Math.pow(1 + c1SPEsc, Math.max(0, age - c1SPAge));
+    if (hasPartner) {
+      const c2AgeNow = c2Age + yr;
+      if (c2AgeNow >= c2SPAge) spInc += c2SP * Math.pow(1 + c2SPEsc, Math.max(0, c2AgeNow - c2SPAge));
+    }
+
+    const guaranteedInc = empInc + dbInc + spInc;
+
+    // ── EXPENDITURE ──
+    const baseSpend = (reduceAge && age >= reduceAge) ? retSpend2 : retSpend;
+    let spend = baseSpend * Math.pow(1 + inflation, Math.max(0, yr));
+
+    // One-off lump sums
+    let lumpTotal = 0;
+    if (lumps[age]) lumps[age].forEach(l => lumpTotal += l.amt);
+
+    const totalSpend = spend + lumpTotal;
+
+    // ── DRAWDOWN ──
+    let drawdown = 0;
+    let dcDraw = 0, isaDraw = 0, giaDraw = 0;
+    let shortfall = 0;
+    if (retired1) {
+      const gap = totalSpend - guaranteedInc;
+      if (gap > 0) {
+        drawdown = gap;
+        // Draw from DC first, then ISA, then GIA
+        let remaining = gap;
+        dcFunds.forEach((f, idx) => {
+          if (remaining <= 0) return;
+          const ownerRetired = dcPots[idx].owner === 'c1' ? retired1 : retired2;
+          if (ownerRetired) {
+            const draw = Math.min(f, remaining);
+            dcFunds[idx] -= draw;
+            dcDraw += draw;
+            remaining -= draw;
+          }
+        });
+        if (remaining > 0 && isaFund > 0) {
+          const draw = Math.min(isaFund, remaining);
+          isaFund -= draw; isaDraw += draw; remaining -= draw;
+        }
+        if (remaining > 0 && giaFund > 0) {
+          const draw = Math.min(giaFund, remaining);
+          giaFund -= draw; giaDraw += draw; remaining -= draw;
+        }
+        if (remaining > 0) shortfall = remaining;
+      }
+    }
+
+    const totalDCFund = dcFunds.reduce((a,b) => a+b, 0);
+    totalFund = totalDCFund + isaFund + giaFund;
+    if (totalFund > peakFund) peakFund = totalFund;
+    if (totalFund <= 0 && runoutAge === null && retired1) runoutAge = age;
+
+    const surplus = guaranteedInc - totalSpend;
+
+    totalIncome += guaranteedInc;
+    totalExpend += totalSpend;
+
+    years.push({
+      age,
+      c2Age: hasPartner ? c2Age + yr : null,
+      retired: retired1,
+      empInc: Math.round(empInc),
+      dbInc:  Math.round(dbInc),
+      spInc:  Math.round(spInc),
+      guaranteedInc: Math.round(guaranteedInc),
+      spend:  Math.round(spend),
+      lump:   Math.round(lumpTotal),
+      totalSpend: Math.round(totalSpend),
+      drawdown: Math.round(drawdown),
+      dcDraw:   Math.round(dcDraw),
+      isaDraw:  Math.round(isaDraw),
+      giaDraw:  Math.round(giaDraw),
+      isaContrib: Math.round(isaContribThisYear),
+      shortfall: Math.round(shortfall),
+      surplus: Math.round(surplus),
+      dcFund:  Math.round(totalDCFund),
+      isaFund: Math.round(isaFund),
+      giaFund: Math.round(giaFund),
+      totalFund: Math.round(totalFund)
+    });
+  }
+
+  if (!runoutAge) runoutAge = endAge + 1;
+
+  // ── RENDER ──
+  const retireYr = years.find(y => y.retired);
+  const retireIncome = retireYr ? retireYr.guaranteedInc : 0;
+  const incomeGap = retireYr ? Math.max(0, retireYr.totalSpend - retireYr.guaranteedInc) : 0;
+
+  const kpiClass = runoutAge > endAge ? 'g' : runoutAge >= endAge - 5 ? 'a' : 'r';
+
+  const today = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+  const reportDate = s('repdate') ? new Date(s('repdate')).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : today;
+
+  let html = `
+    <div class="print-cover">
+      <div class="pc-left">
+        <img class="pc-logo" src="https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2164943316/settings_images/0d42421-a8b2-8db3-67c-f6a46ae4756b_TCP-light.png" alt="Trinity Capital Partners">
+        <div class="pc-title">${c1Name}${hasPartner ? ' & ' + c2Name : ''}</div>
+        <div class="pc-subtitle">
+          Illustrative Retirement Cashflow Projection<br>
+          Prepared by Trinity Capital Partners · ${reportDate}
+        </div>
+      </div>
+      <div class="pc-right">
+        <p class="pc-tag">Cashflow Projection</p>
+        <div class="pc-contact">
+          1 Balloon Street, Manchester M4 4BE<br>
+          51 Lime Street, London EC3M 7DQ<br>
+          0161 537 2228<br>
+          info@trinitycapitalpartners.co.uk
+        </div>
+        <p class="pc-beyond">Go Beyond</p>
+      </div>
+    </div>
+
+    <div class="res-header">
+      <div>
+        <div class="res-client">${c1Name}${hasPartner ? ' & ' + c2Name : ''}</div>
+        <div class="res-meta">
+          ${c1Name} aged ${c1Age}, retiring at ${c1Ret}, life expectancy ${c1LE}
+          ${hasPartner ? '<br>' + c2Name + ' aged ' + c2Age + ', retiring at ' + c2Ret + ', life expectancy ' + c2LE : ''}
+        </div>
+      </div>
+      <div class="res-date">Trinity Capital Partners<br>Illustrative Projection<br>${reportDate}</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi ${kpiClass}">
+        <div class="kpi-val">${runoutAge > endAge ? 'Beyond ' + endAge : 'Age ' + runoutAge}</div>
+        <div class="kpi-lbl">Projected fund exhaustion</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">${fmt(peakFund)}</div>
+        <div class="kpi-lbl">Peak total fund value</div>
+      </div>
+      <div class="kpi ${incomeGap > 0 ? 'a' : 'g'}">
+        <div class="kpi-val">${fmt(incomeGap)}</div>
+        <div class="kpi-lbl">Annual income gap at retirement</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">${fmt(retireIncome)}</div>
+        <div class="kpi-lbl">Guaranteed income at retirement</div>
+      </div>
+    </div>
+
+    <div class="assumptions-bar">
+      <span class="ass"><strong>Pension:</strong> ${v('assGrowth')}% gross − ${v('feeDC') || 0}% charges = <strong>${(v('assGrowth') - (v('feeDC') || 0)).toFixed(2)}% net</strong></span>
+      <span class="ass"><strong>ISA:</strong> ${v('assISAGrowth')}% − ${v('feeISA') || 0}% = <strong>${(v('assISAGrowth') - (v('feeISA') || 0)).toFixed(2)}% net</strong></span>
+      <span class="ass"><strong>GIA:</strong> ${v('assISAGrowth')}% − ${v('feeGIA') || 0}% = <strong>${(v('assISAGrowth') - (v('feeGIA') || 0)).toFixed(2)}% net</strong></span>
+      <span class="ass"><strong>Inflation:</strong> ${v('assInflation')}% p.a.</span>
+      <span class="ass"><strong>To:</strong> Age ${endAge}</span>
+      <span class="ass"><strong>Basis:</strong> Illustrative — not advice</span>
+    </div>
+
+    <div class="chart-row">
+      <div class="ch-card"><p class="ch-title">Total Fund Value Over Time</p><div class="ch-wrap"><canvas id="ch1"></canvas></div></div>
+      <div class="ch-card"><p class="ch-title">Annual Income vs Expenditure</p><div class="ch-wrap"><canvas id="ch2"></canvas></div></div>
+    </div>
+
+    <div class="chart-row" style="grid-template-columns:1fr">
+      <div class="ch-card"><p class="ch-title">Withdrawal Strategy — Drawdowns &amp; Contributions by Source</p><div class="ch-wrap" style="height:260px"><canvas id="ch3"></canvas></div></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="cft">
+        <thead><tr>
+          <th rowspan="2">Age</th>
+          <th rowspan="2">Emp. Income</th>
+          <th rowspan="2">DB / SP</th>
+          <th rowspan="2">Total Guaranteed</th>
+          <th rowspan="2">Expenditure</th>
+          <th rowspan="2">One-Offs</th>
+          <th colspan="3" style="text-align:center;background:rgba(255,74,87,.06)">Withdrawals</th>
+          <th rowspan="2">ISA Contrib.</th>
+          <th rowspan="2">Surplus / Deficit</th>
+          <th rowspan="2">DC Fund</th>
+          <th rowspan="2">ISA</th>
+          <th rowspan="2">GIA</th>
+          <th rowspan="2">Total Fund</th>
+        </tr>
+        <tr>
+          <th style="background:rgba(255,74,87,.04)">DC / SIPP</th>
+          <th style="background:rgba(255,74,87,.04)">ISA</th>
+          <th style="background:rgba(255,74,87,.04)">GIA</th>
+        </tr></thead>
+        <tbody>`;
+
+  years.forEach(y => {
+    const surplusClass = y.shortfall > 0 ? 'def' : (y.retired && y.surplus < 0 ? 'def' : 'sur');
+    const surplusVal = y.shortfall > 0 ? fmt(-y.shortfall) : (y.retired ? fmt(y.guaranteedInc - y.totalSpend) : '—');
+    html += `<tr class="${y.retired && !years[years.indexOf(y)-1]?.retired ? 'retire-yr' : ''}">
+      <td>${y.age}${hasPartner && y.c2Age ? ' / ' + y.c2Age : ''}${y.retired && !years[years.indexOf(y)-1]?.retired ? ' ★' : ''}</td>
+      <td>${y.empInc > 0 ? fmt(y.empInc) : '—'}</td>
+      <td>${fmt(y.dbInc + y.spInc)}</td>
+      <td>${fmt(y.guaranteedInc)}</td>
+      <td>${y.retired ? fmt(y.spend) : '—'}</td>
+      <td>${y.lump > 0 ? fmt(y.lump) : '—'}</td>
+      <td>${y.dcDraw > 0 ? fmt(y.dcDraw) : '—'}</td>
+      <td>${y.isaDraw > 0 ? fmt(y.isaDraw) : '—'}</td>
+      <td>${y.giaDraw > 0 ? fmt(y.giaDraw) : '—'}</td>
+      <td>${y.isaContrib > 0 ? '+' + fmt(y.isaContrib) : '—'}</td>
+      <td class="${surplusClass}">${surplusVal}</td>
+      <td>${fmt(y.dcFund)}</td>
+      <td>${fmt(y.isaFund)}</td>
+      <td>${fmt(y.giaFund)}</td>
+      <td>${fmt(y.totalFund)}</td>
+    </tr>`;
+  });
+
+  html += `</tbody>
+        <tfoot><tr><td colspan="15">★ Retirement year &nbsp;|&nbsp; Withdrawal order: DC/SIPP → ISA → GIA &nbsp;|&nbsp; Growth net of charges entered in Assumptions &nbsp;|&nbsp; Figures in today's money terms, inflated at ${v('assInflation')}% p.a. &nbsp;|&nbsp; Illustrative projection only — not financial advice.</td></tr></tfoot>
+      </table>
+    </div>`;
+
+  html += `
+    <div class="print-footer" style="display:none">
+      <div class="pf-disc">
+        <strong>Important — Illustrative Projection Only:</strong> This document has been prepared for discussion purposes only and does not constitute regulated financial advice. 
+        Projections are based on assumed growth rates and simplified modelling. Actual returns will vary and are not guaranteed. 
+        The value of investments can fall as well as rise. Tax treatment depends on individual circumstances and may be subject to change. 
+        Growth is shown net of the charges stated in the assumptions bar above. Tax on withdrawals, sequencing risk and legislative changes are not modelled. This document should not be relied upon as the basis for any financial decision.
+      </div>
+      <div class="pf-reg">
+        Trinity Capital Partners<br>
+        FCA Register No. 523393<br>
+        trinitycapitalpartners.co.uk
+      </div>
+    </div>`;
+
+  document.getElementById('results-content').innerHTML = html;
+
+  // Navigate to results
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-results').classList.add('active');
+
+  // Charts
+  const ages = years.map(y => y.age);
+  if (ch1) ch1.destroy();
+  if (ch2) ch2.destroy();
+  if (ch3) ch3.destroy();
+
+  ch1 = new Chart(document.getElementById('ch1').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ages,
+      datasets: [
+        { label: 'DC / SIPP', data: years.map(y => y.dcFund), borderColor: '#ff4a57', backgroundColor: 'rgba(255,74,87,.12)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+        { label: 'ISA',       data: years.map(y => y.isaFund), borderColor: '#6b7a8f', backgroundColor: 'rgba(107,122,143,.12)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+        { label: 'GIA',       data: years.map(y => y.giaFund), borderColor: '#1f2937', backgroundColor: 'rgba(31,41,55,.10)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }
+      ]
+    },
+    options: chartOpts('Fund Value', ages)
+  });
+
+  ch2 = new Chart(document.getElementById('ch2').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ages,
+      datasets: [
+        { label: 'Guaranteed Income', data: years.map(y => y.guaranteedInc), backgroundColor: 'rgba(39,174,96,.7)', borderWidth: 0 },
+        { label: 'Expenditure', data: years.map(y => y.retired ? y.totalSpend : 0), backgroundColor: 'rgba(255,74,87,.6)', borderWidth: 0 }
+      ]
+    },
+    options: chartOpts('Annual £', ages)
+  });
+
+  // Withdrawal strategy chart — stacked bars per source, with ISA contributions shown as negative (below zero line)
+  const ch3Opts = chartOpts('Annual £', ages);
+  ch3Opts.scales.x.stacked = true;
+  ch3Opts.scales.y.stacked = true;
+  ch3 = new Chart(document.getElementById('ch3').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ages,
+      datasets: [
+        { label: 'DC / SIPP withdrawal', data: years.map(y => y.dcDraw),  backgroundColor: 'rgba(255,74,87,.85)', borderWidth: 0, stack: 'flow' },
+        { label: 'ISA withdrawal',       data: years.map(y => y.isaDraw), backgroundColor: 'rgba(107,122,143,.85)', borderWidth: 0, stack: 'flow' },
+        { label: 'GIA withdrawal',       data: years.map(y => y.giaDraw), backgroundColor: 'rgba(31,41,55,.85)', borderWidth: 0, stack: 'flow' },
+        { label: 'ISA contribution (in)', data: years.map(y => -y.isaContrib), backgroundColor: 'rgba(39,174,96,.75)', borderWidth: 0, stack: 'flow' }
+      ]
+    },
+    options: ch3Opts
+  });
+}
+
+function chartOpts(yLabel, ages) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { family: 'Poppins', size: 10 }, boxWidth: 10, padding: 12 } },
+      tooltip: { backgroundColor: '#151d26', titleColor: '#fff', bodyColor: 'rgba(255,255,255,.65)', padding: 10, cornerRadius: 0,
+        callbacks: { title: c => 'Age ' + c[0].label, label: c => ' ' + c.dataset.label + ': £' + c.raw.toLocaleString() }
+      }
+    },
+    scales: {
+      x: { ticks: { font: { family: 'Poppins', size: 9 }, color: '#6b7a8f', maxTicksLimit: 12 }, grid: { color: '#e2e4e8' } },
+      y: { title: { display: true, text: yLabel, font: { family: 'Poppins', size: 9 }, color: '#6b7a8f' }, grid: { color: '#e2e4e8' },
+        ticks: { font: { family: 'Poppins', size: 9 }, color: '#6b7a8f',
+          callback: v => v >= 1000000 ? '£'+(v/1000000).toFixed(1)+'m' : v >= 1000 ? '£'+Math.round(v/1000)+'k' : '£'+v
+        }
+      }
+    }
+  };
+}
+</script>
+</body>
+</html>
