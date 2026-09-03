@@ -159,7 +159,11 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
 .pdf-mode .chart-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;margin-bottom:12px!important}
 .pdf-mode .ch-card{background:#fff!important;border:1px solid #e2e4e8!important;padding:12px 14px!important}
 .pdf-mode .ch-title{font-size:9px!important;margin-bottom:8px!important}
-.pdf-mode .ch-wrap{height:230px!important}
+.pdf-mode .ch-wrap{height:210px!important}
+.pdf-mode .chart-row+.chart-row .ch-wrap{height:190px!important}
+.pdf-mode .cft tbody tr{page-break-inside:avoid}
+.pdf-mode .cft thead{display:table-header-group}
+.pdf-mode .tbl-wrap{border:1px solid #e2e4e8!important}
 .pdf-mode .tbl-wrap{overflow:visible!important;margin-bottom:12px!important}
 .pdf-mode .cft{font-size:9px!important;table-layout:fixed;width:100%}
 .pdf-mode .cft thead tr{background:#151d26!important}
@@ -497,7 +501,7 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
 </main>
 </div>
 
-<div id="pdf-holder" style="position:absolute;left:-20000px;top:0;width:1080px"></div>
+<div id="pdf-holder" style="position:absolute;left:0;top:0;width:1080px;z-index:-9999;opacity:0;pointer-events:none"></div>
 
 <!-- CLEAR CONFIRM MODAL -->
 <div class="modal-overlay" id="clearModal" onclick="if(event.target===this)closeClearModal()">
@@ -703,9 +707,9 @@ function exportAndEmail() {
     margin: [6, 6, 6, 6],
     filename: lastExportName,
     image: { type: 'jpeg', quality: 0.96 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1080, width: 1080 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1080, width: 1080, x: 0, y: 0, scrollX: 0, scrollY: 0 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-    pagebreak: { mode: ['css', 'legacy'], avoid: ['.kpi-row', '.chart-row', '.ch-card', '.print-cover', 'tr'] }
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.kpi-row', '.ch-card', '.print-cover'] }
   }).from(clone).outputPdf('blob').then(blob => {
     holder.innerHTML = '';
     return blobToBase64(blob).then(b64 => ({ b64 }));
@@ -753,7 +757,7 @@ function copyCanvases(source, clone) {
     const img = new Image();
     img.src = c.toDataURL('image/png');
     img.style.width = '100%';
-    img.style.height = '230px';
+    img.style.height = '210px';
     img.style.objectFit = 'contain';
     dst[i].replaceWith(img);
   });
