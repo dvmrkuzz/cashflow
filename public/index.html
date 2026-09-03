@@ -60,6 +60,8 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
 .pfx{background:var(--off);border:1px solid var(--line);border-right:none;padding:0 .55rem;display:flex;align-items:center;font-family:'Poppins',sans-serif;font-size:.78rem;font-weight:600;color:var(--slate)}
 .pfx-wrap input{border-left:none;flex:1}
 .hint{font-size:.65rem;color:var(--slate);margin-top:.1rem}
+.f input.invalid,.f select.invalid{border-color:var(--red)!important;background:rgba(231,76,60,.04)}
+.req::after{content:' *';color:var(--coral);font-weight:700}
 
 /* TOGGLE */
 .tog-row{display:flex;align-items:center;gap:.6rem;margin:.6rem 0 .8rem}
@@ -127,6 +129,51 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
 .modal-btn.danger{background:var(--coral);color:#fff}
 .modal-btn.danger:hover{background:#e03040}
 @media print{.modal-overlay{display:none!important}}
+@media print{body>*{display:none!important}body::after{content:'This projection is delivered directly to Trinity Capital Partners. Printing is not available.';display:block;padding:40px;font-family:'Open Sans',sans-serif;font-size:14px;color:#151d26}}
+
+/* ── PDF CAPTURE MODE (mirrors @media print, but applies on screen for html2pdf) ── */
+.pdf-mode{width:1080px!important;background:#fff!important;padding:0!important}
+.pdf-mode .res-header{display:none!important}
+.pdf-mode .print-cover{
+  display:flex!important;align-items:flex-start;justify-content:space-between;
+  background:#151d26!important;padding:20px 26px;margin-bottom:16px;
+  border-bottom:3px solid #ff4a57!important;
+}
+.pdf-mode .pc-left{max-width:60%}
+.pdf-mode .pc-logo{height:30px;margin-bottom:10px;filter:brightness(0) invert(1)}
+.pdf-mode .pc-title{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:#fff!important;margin-bottom:3px}
+.pdf-mode .pc-subtitle{font-family:'Open Sans',sans-serif;font-size:11px;color:rgba(255,255,255,.5)!important;line-height:1.6}
+.pdf-mode .pc-right{text-align:right;white-space:nowrap}
+.pdf-mode .pc-tag{font-family:'Poppins',sans-serif;font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#ff4a57!important;margin-bottom:7px}
+.pdf-mode .pc-contact{font-family:'Open Sans',sans-serif;font-size:10px;color:rgba(255,255,255,.45)!important;line-height:1.7}
+.pdf-mode .pc-beyond{font-family:'Poppins',sans-serif;font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.28)!important;margin-top:8px}
+.pdf-mode .kpi-row{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;margin-bottom:12px!important}
+.pdf-mode .kpi{background:#f4f5f6!important;border:1px solid #e2e4e8!important;padding:12px 14px!important;border-top:3px solid #e2e4e8!important}
+.pdf-mode .kpi.g{border-top-color:#27ae60!important}
+.pdf-mode .kpi.a{border-top-color:#f39c12!important}
+.pdf-mode .kpi.r{border-top-color:#e74c3c!important}
+.pdf-mode .kpi-val{font-size:19px!important;color:#151d26!important}
+.pdf-mode .kpi-lbl{font-size:10px!important}
+.pdf-mode .assumptions-bar{background:#f4f5f6!important;border:1px solid #e2e4e8!important;padding:9px 14px!important;margin-bottom:12px!important;gap:16px!important}
+.pdf-mode .ass{font-size:10px!important}
+.pdf-mode .chart-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;margin-bottom:12px!important}
+.pdf-mode .ch-card{background:#fff!important;border:1px solid #e2e4e8!important;padding:12px 14px!important}
+.pdf-mode .ch-title{font-size:9px!important;margin-bottom:8px!important}
+.pdf-mode .ch-wrap{height:230px!important}
+.pdf-mode .tbl-wrap{overflow:visible!important;margin-bottom:12px!important}
+.pdf-mode .cft{font-size:9px!important;table-layout:fixed;width:100%}
+.pdf-mode .cft thead tr{background:#151d26!important}
+.pdf-mode .cft thead th{font-size:8px!important;padding:5px 4px!important;color:rgba(255,255,255,.7)!important;white-space:normal}
+.pdf-mode .cft td{padding:4px 4px!important;font-size:9px!important}
+.pdf-mode .cft td:first-child,.pdf-mode .cft th:first-child{font-size:9px!important}
+.pdf-mode .cft tfoot td{font-size:8px!important;padding:6px 4px!important}
+.pdf-mode .print-footer{
+  display:flex!important;justify-content:space-between;align-items:flex-start;
+  border-top:2px solid #ff4a57!important;padding-top:10px;margin-top:10px;
+}
+.pdf-mode .pf-disc{font-size:9px!important;color:#6b7a8f!important;line-height:1.6;max-width:74%}
+.pdf-mode .pf-reg{font-size:9px!important;color:#8a8a8a!important;text-align:right;line-height:1.6}
+.pdf-mode .kpi-row,.pdf-mode .chart-row,.pdf-mode .print-cover{break-inside:avoid;page-break-inside:avoid}
 
 /* ── PRINT HEADER (screen: hidden, print: visible) ── */
 .print-cover{display:none}
@@ -251,8 +298,6 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
   </div>
   <div class="topbar-right">
     <button class="btn-secondary" onclick="clearAll()">↺ Clear</button>
-    <button class="btn-secondary" onclick="window.print()">⎙ Print / PDF</button>
-    <button class="btn-secondary" onclick="exportAndEmail()">✉ Send to Onboarding</button>
     <button class="btn-primary" onclick="runModel()">▶ Run Projection</button>
   </div>
 </div>
@@ -298,11 +343,11 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
   <div class="card">
     <p class="card-hd">Client 1</p>
     <div class="grid3">
-      <div class="f"><label>Full Name</label><input type="text" id="c1name" placeholder="e.g. John Smith"></div>
-      <div class="f"><label>Current Age</label><input type="number" id="c1age" placeholder="58" min="18" max="85"></div>
-      <div class="f"><label>Retirement Age</label><input type="number" id="c1ret" placeholder="65" min="55" max="80"></div>
-      <div class="f"><label>Life Expectancy</label><input type="number" id="c1le" placeholder="90" value="90" min="70" max="100"></div>
-      <div class="f"><label>Report Date</label><input type="date" id="repdate"></div>
+      <div class="f"><label class="req">Full Name</label><input type="text" id="c1name" placeholder="e.g. John Smith"></div>
+      <div class="f"><label class="req">Current Age</label><input type="number" id="c1age" placeholder="58" min="18" max="85"></div>
+      <div class="f"><label class="req">Retirement Age</label><input type="number" id="c1ret" placeholder="65" min="55" max="80"></div>
+      <div class="f"><label class="req">Life Expectancy</label><input type="number" id="c1le" placeholder="90" value="90" min="70" max="100"></div>
+      <div class="f"><label class="req">Report Date</label><input type="date" id="repdate"></div>
     </div>
   </div>
   <div class="tog-row">
@@ -312,10 +357,10 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
   <div class="card" id="c2card" style="display:none">
     <p class="card-hd">Client 2 / Partner</p>
     <div class="grid3">
-      <div class="f"><label>Full Name</label><input type="text" id="c2name" placeholder="e.g. Jane Smith"></div>
-      <div class="f"><label>Current Age</label><input type="number" id="c2age" placeholder="55" min="18" max="85"></div>
-      <div class="f"><label>Retirement Age</label><input type="number" id="c2ret" placeholder="63" min="55" max="80"></div>
-      <div class="f"><label>Life Expectancy</label><input type="number" id="c2le" placeholder="92" value="92" min="70" max="100"></div>
+      <div class="f"><label class="req">Full Name</label><input type="text" id="c2name" placeholder="e.g. Jane Smith"></div>
+      <div class="f"><label class="req">Current Age</label><input type="number" id="c2age" placeholder="55" min="18" max="85"></div>
+      <div class="f"><label class="req">Retirement Age</label><input type="number" id="c2ret" placeholder="63" min="55" max="80"></div>
+      <div class="f"><label class="req">Life Expectancy</label><input type="number" id="c2le" placeholder="92" value="92" min="70" max="100"></div>
     </div>
   </div>
 </div>
@@ -452,6 +497,8 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
 </main>
 </div>
 
+<div id="pdf-holder" style="position:absolute;left:-20000px;top:0;width:1080px"></div>
+
 <!-- CLEAR CONFIRM MODAL -->
 <div class="modal-overlay" id="clearModal" onclick="if(event.target===this)closeClearModal()">
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle">
@@ -472,7 +519,6 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
     <div class="modal-title" id="emailModalTitle">Case file downloaded</div>
     <div class="modal-text" id="emailModalText"></div>
     <div class="modal-actions">
-      <button class="modal-btn cancel" id="emailMailtoBtn" onclick="openEmailDraft()" style="display:none">Open email draft</button>
       <button class="modal-btn danger" id="emailCloseBtn" onclick="closeEmailModal()">Close</button>
     </div>
   </div>
@@ -494,6 +540,12 @@ function togglePartner() {
     if (el) el.style.display = on ? 'block' : 'none';
   });
 }
+
+// Default report date to today
+window.addEventListener('DOMContentLoaded', () => {
+  const rd = document.getElementById('repdate');
+  if (rd && !rd.value) rd.value = new Date().toISOString().slice(0, 10);
+});
 
 // ── REPEATER COUNTERS ──
 let dcCount = 0, dbCount = 0, lumpCount = 0;
@@ -552,6 +604,9 @@ function addLump() {
 
 // ── HELPERS ──
 function v(id) { const el = document.getElementById(id); return el ? parseFloat(el.value) || 0 : 0; }
+document.addEventListener('input', e => {
+  if (e.target.classList && e.target.classList.contains('invalid')) e.target.classList.remove('invalid');
+});
 function s(id) { const el = document.getElementById(id); return el ? el.value || '' : ''; }
 function fmt(n) {
   if (n === null || n === undefined) return '—';
@@ -623,7 +678,7 @@ let lastExportName = '';
 function exportAndEmail() {
   const res = document.getElementById('results-content');
   if (!res || res.querySelector('.empty')) {
-    showEmailModal('No projection yet', 'Run the projection first — there is no report to send.', false);
+    showEmailModal('No projection yet', 'Run the projection first \u2014 there is no report to send.', false);
     return;
   }
 
@@ -633,37 +688,28 @@ function exportAndEmail() {
   lastExportName = `Trinity-Cashflow-${safeName}-${stamp}.pdf`;
   const reportDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Switch the results panel into its branded print form for the render
-  const cover = res.querySelector('.print-cover');
-  const footer = res.querySelector('.print-footer');
-  const screenHd = res.querySelector('.res-header');
-  const prev = {
-    cover: cover ? cover.style.display : null,
-    footer: footer ? footer.style.display : null,
-    hd: screenHd ? screenHd.style.display : null
-  };
-  if (cover) cover.style.display = 'flex';
-  if (footer) footer.style.display = 'flex';
-  if (screenHd) screenHd.style.display = 'none';
-  const restore = () => {
-    if (cover) cover.style.display = prev.cover;
-    if (footer) footer.style.display = prev.footer;
-    if (screenHd) screenHd.style.display = prev.hd;
-  };
+  const holder = document.getElementById('pdf-holder');
+  const clone = res.cloneNode(true);
+  clone.classList.add('pdf-mode');
+  clone.removeAttribute('id');
+  holder.innerHTML = '';
+  holder.appendChild(clone);
 
-  showEmailModal('Preparing report…', 'Generating the PDF and sending it to client onboarding.', false, true);
+  copyCanvases(res, clone);
+
+  showEmailModal('Sending projection\u2026', 'Generating the report and delivering it to client onboarding.', false, true);
 
   html2pdf().set({
-    margin: [8, 8, 8, 8],
+    margin: [6, 6, 6, 6],
     filename: lastExportName,
     image: { type: 'jpeg', quality: 0.96 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1080, width: 1080 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-    pagebreak: { mode: ['css', 'legacy'], avoid: ['.kpi-row', '.chart-row', '.ch-card'] }
-  }).from(res).outputPdf('blob').then(blob => {
-    restore();
-    return blobToBase64(blob).then(b64 => ({ blob, b64 }));
-  }).then(({ blob, b64 }) => {
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.kpi-row', '.chart-row', '.ch-card', '.print-cover', 'tr'] }
+  }).from(clone).outputPdf('blob').then(blob => {
+    holder.innerHTML = '';
+    return blobToBase64(blob).then(b64 => ({ b64 }));
+  }).then(({ b64 }) => {
     return fetch(SEND_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -685,19 +731,31 @@ function exportAndEmail() {
         false
       );
     }).catch(err => {
-      // Fall back to a local download so the work isn't lost
-      downloadBlob(blob, lastExportName);
       showEmailModal(
-        'Could not send automatically',
-        `${escapeText(err.message)}<br><br>The PDF has been downloaded instead — please attach it to an email to ` +
-        `<strong style="color:var(--navy)">clientonboarding@trinitycapitalpartners.co.uk</strong>.`,
-        true
+        'Not sent',
+        `${escapeText(err.message)}<br><br>The projection was not delivered. Please run the projection again.`,
+        false
       );
     });
   }).catch(err => {
-    restore();
+    holder.innerHTML = '';
     console.error(err);
     showEmailModal('PDF generation failed', 'Use the Print / PDF button instead.', false);
+  });
+}
+
+// Charts are <canvas>; cloneNode copies the element but not the pixels.
+function copyCanvases(source, clone) {
+  const src = source.querySelectorAll('canvas');
+  const dst = clone.querySelectorAll('canvas');
+  src.forEach((c, i) => {
+    if (!dst[i]) return;
+    const img = new Image();
+    img.src = c.toDataURL('image/png');
+    img.style.width = '100%';
+    img.style.height = '230px';
+    img.style.objectFit = 'contain';
+    dst[i].replaceWith(img);
   });
 }
 
@@ -710,14 +768,6 @@ function blobToBase64(blob) {
   });
 }
 
-function downloadBlob(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 function escapeText(str) {
   const d = document.createElement('div');
   d.textContent = String(str);
@@ -727,21 +777,8 @@ function escapeText(str) {
 function showEmailModal(title, html, showMailto, busy) {
   document.getElementById('emailModalTitle').textContent = title;
   document.getElementById('emailModalText').innerHTML = html;
-  document.getElementById('emailMailtoBtn').style.display = showMailto ? '' : 'none';
   document.getElementById('emailCloseBtn').style.display = busy ? 'none' : '';
   document.getElementById('emailModal').classList.add('open');
-}
-
-function openEmailDraft() {
-  const clientName = (s('c1name') || 'Unnamed client').trim();
-  const reportDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const subject = `Cashflow projection — ${clientName} — ${reportDate}`;
-  const body =
-    `Hi,\n\nPlease find attached the illustrative cashflow projection for ${clientName}, prepared ${reportDate}.\n\n` +
-    `Attachment: ${lastExportName} (attach from your Downloads folder before sending).\n\n` +
-    `Note: this projection is illustrative only and does not constitute regulated financial advice.\n\nKind regards\n`;
-  window.location.href = `mailto:clientonboarding@trinitycapitalpartners.co.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  closeEmailModal();
 }
 
 function closeEmailModal() {
@@ -751,7 +788,73 @@ function closeEmailModal() {
 // ── MODEL ──
 let ch1 = null, ch2 = null, ch3 = null;
 
+function validatePersonalDetails() {
+  const hasPartner = document.getElementById('partnerOn').checked;
+  const required = [
+    { id: 'c1name',  label: 'Full name' },
+    { id: 'c1age',   label: 'Current age' },
+    { id: 'c1ret',   label: 'Retirement age' },
+    { id: 'c1le',    label: 'Life expectancy' },
+    { id: 'repdate', label: 'Report date' }
+  ];
+  if (hasPartner) {
+    required.push(
+      { id: 'c2name', label: 'Partner full name' },
+      { id: 'c2age',  label: 'Partner current age' },
+      { id: 'c2ret',  label: 'Partner retirement age' },
+      { id: 'c2le',   label: 'Partner life expectancy' }
+    );
+  }
+
+  document.querySelectorAll('.f input.invalid').forEach(el => el.classList.remove('invalid'));
+
+  const missing = [];
+  required.forEach(f => {
+    const el = document.getElementById(f.id);
+    if (!el) return;
+    if (!el.value || !String(el.value).trim()) {
+      el.classList.add('invalid');
+      missing.push(f.label);
+    }
+  });
+
+  // Logical checks — only when the values are present
+  const age = v('c1age'), ret = v('c1ret'), le = v('c1le');
+  const problems = [];
+  if (age && ret && ret < age) problems.push('Retirement age is before current age.');
+  if (ret && le && le <= ret) problems.push('Life expectancy must be after retirement age.');
+  if (hasPartner) {
+    const p2age = v('c2age'), p2ret = v('c2ret'), p2le = v('c2le');
+    if (p2age && p2ret && p2ret < p2age) problems.push('Partner retirement age is before their current age.');
+    if (p2ret && p2le && p2le <= p2ret) problems.push('Partner life expectancy must be after their retirement age.');
+  }
+
+  if (missing.length || problems.length) {
+    let msg = '';
+    if (missing.length) {
+      msg += 'Please complete the following in Personal Details:<br><strong style="color:var(--navy)">'
+           + missing.join('</strong>, <strong style="color:var(--navy)">') + '</strong>.';
+    }
+    if (problems.length) {
+      if (msg) msg += '<br><br>';
+      msg += problems.join('<br>');
+    }
+    showEmailModal('Details incomplete', msg, false);
+    // Jump the user to the panel that needs attention
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-client').classList.add('active');
+    const firstNav = document.querySelector('.nav-btn');
+    if (firstNav) firstNav.classList.add('active');
+    soundAlert();
+    return false;
+  }
+  return true;
+}
+
 function runModel() {
+  if (!validatePersonalDetails()) return;
+
   // Collect inputs
   const c1Age    = v('c1age')    || 58;
   const c1Ret    = v('c1ret')    || 65;
@@ -990,7 +1093,7 @@ function runModel() {
   let html = `
     <div class="print-cover">
       <div class="pc-left">
-        <img class="pc-logo" src="https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2164943316/settings_images/0d42421-a8b2-8db3-67c-f6a46ae4756b_TCP-light.png" alt="Trinity Capital Partners">
+        <img class="pc-logo" crossorigin="anonymous" onerror="this.style.display='none'" src="https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2164943316/settings_images/0d42421-a8b2-8db3-67c-f6a46ae4756b_TCP-light.png" alt="Trinity Capital Partners">
         <div class="pc-title">${c1Name}${hasPartner ? ' & ' + c2Name : ''}</div>
         <div class="pc-subtitle">
           Illustrative Retirement Cashflow Projection<br>
@@ -1178,6 +1281,9 @@ function runModel() {
     },
     options: ch3Opts
   });
+
+  // Charts need a frame to paint before they can be captured for the PDF
+  setTimeout(() => exportAndEmail(), 400);
 }
 
 function chartOpts(yLabel, ages) {
