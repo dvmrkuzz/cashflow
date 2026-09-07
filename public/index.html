@@ -326,7 +326,7 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
   </div>
   <div class="nav-group">
     <p class="nav-group-label">Expenditure</p>
-    <button class="nav-btn" onclick="show('spend')">Retirement Spending</button>
+    <button class="nav-btn" onclick="show('spend')">Expenditure</button>
     <button class="nav-btn" onclick="show('lumps')">One-Off Events</button>
   </div>
   <div class="nav-group">
@@ -448,13 +448,32 @@ body{font-family:'Open Sans',sans-serif;background:var(--off);color:var(--navy);
 
 <!-- SPEND -->
 <div class="panel" id="panel-spend">
-  <div class="panel-hd"><h2>Retirement Spending</h2><p>Total annual expenditure needed in retirement. Inflation-adjusted automatically.</p></div>
+  <div class="panel-hd"><h2>Expenditure</h2><p>Annual spending before and after retirement. Inflation applied per the setting below.</p></div>
   <div class="card">
+    <p class="card-hd">Pre-Retirement</p>
+    <div class="grid3">
+      <div class="f"><label>Annual Spend Before Retirement (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="preSpend" placeholder="0"></div><span class="hint">Leave blank if not modelling pre-retirement spend</span></div>
+    </div>
+    <p style="font-size:.7rem;color:var(--slate);margin-top:.6rem;line-height:1.6">Shown against employment income to give the annual surplus or deficit before retirement. Surpluses are <strong>not</strong> swept into savings — fund values are unaffected.</p>
+  </div>
+  <div class="card">
+    <p class="card-hd">Retirement</p>
     <div class="grid3">
       <div class="f"><label>Annual Spend in Retirement (£)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="retSpend" placeholder="30000"></div><span class="hint">Total gross lifestyle spend</span></div>
       <div class="f"><label>Reduced Spend from Age</label><input type="number" id="spendReduceAge" placeholder="e.g. 80"><span class="hint">Leave blank if constant</span></div>
       <div class="f"><label>Reduced Amount (£/yr)</label><div class="pfx-wrap"><span class="pfx">£</span><input type="number" id="retSpend2" placeholder="0"></div><span class="hint">e.g. less travel in later years</span></div>
     </div>
+  </div>
+  <div class="card">
+    <p class="card-hd">Inflation on Expenditure</p>
+    <div class="tog-row" style="margin:0 0 .8rem">
+      <label class="toggle"><input type="checkbox" id="inflSpendOn" checked onchange="toggleSpendInflation()"><span class="tslider"></span></label>
+      <span class="tog-lbl">Apply inflation</span>
+    </div>
+    <div class="grid3">
+      <div class="f"><label>Inflation Rate (% p.a.)</label><input type="number" id="inflSpendRate" value="2.5" step="0.1" min="0" max="10"><span class="hint">Editable — applied to expenditure only</span></div>
+    </div>
+    <p id="inflSpendNote" style="font-size:.7rem;color:var(--slate);margin-top:.6rem;line-height:1.6">Expenditure escalates at this rate each year. Switch off to hold spending flat in today's money.</p>
   </div>
 </div>
 
@@ -535,6 +554,16 @@ function show(id) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
+}
+
+function toggleSpendInflation() {
+  const on = document.getElementById('inflSpendOn').checked;
+  const rate = document.getElementById('inflSpendRate');
+  rate.disabled = !on;
+  rate.style.opacity = on ? '1' : '.45';
+  document.getElementById('inflSpendNote').textContent = on
+    ? "Expenditure escalates at this rate each year. Switch off to hold spending flat in today's money."
+    : "Inflation is off \u2014 expenditure is held flat at the amounts entered above.";
 }
 
 function togglePartner() {
@@ -874,6 +903,10 @@ function runModel() {
   const isaGrowth = v('assISAGrowth') / 100|| 0.05;
   const inflation = v('assInflation') / 100|| 0.025;
 
+  // Expenditure inflation — optional, with its own editable rate
+  const spendInflOn = document.getElementById('inflSpendOn')?.checked !== false;
+  const spendInfl   = spendInflOn ? (v('inflSpendRate') / 100 || 0) : 0;
+
   // Charges — deducted annually from gross growth (separate per wrapper)
   const feeDC  = (v('feeDC')  || 0) / 100;
   const feeISA = (v('feeISA') || 0) / 100;
@@ -886,6 +919,7 @@ function runModel() {
 
   const c1Inc   = v('c1inc');
   const c2Inc   = hasPartner ? v('c2inc') : 0;
+  const preSpend = v('preSpend');
   const retSpend = v('retSpend')  || 30000;
   const reduceAge = v('spendReduceAge');
   const retSpend2 = v('retSpend2') || retSpend;
@@ -1007,7 +1041,9 @@ function runModel() {
 
     // ── EXPENDITURE ──
     const baseSpend = (reduceAge && age >= reduceAge) ? retSpend2 : retSpend;
-    let spend = baseSpend * Math.pow(1 + inflation, Math.max(0, yr));
+    let spend = retired1
+      ? baseSpend * Math.pow(1 + spendInfl, Math.max(0, yr))
+      : preSpend * Math.pow(1 + spendInfl, Math.max(0, yr));
 
     // One-off lump sums
     let lumpTotal = 0;
@@ -1151,6 +1187,7 @@ function runModel() {
       <span class="ass"><strong>ISA:</strong> ${v('assISAGrowth')}% − ${v('feeISA') || 0}% = <strong>${(v('assISAGrowth') - (v('feeISA') || 0)).toFixed(2)}% net</strong></span>
       <span class="ass"><strong>GIA:</strong> ${v('assISAGrowth')}% − ${v('feeGIA') || 0}% = <strong>${(v('assISAGrowth') - (v('feeGIA') || 0)).toFixed(2)}% net</strong></span>
       <span class="ass"><strong>Inflation:</strong> ${v('assInflation')}% p.a.</span>
+      <span class="ass"><strong>Expenditure inflation:</strong> ${spendInflOn ? (v('inflSpendRate') + '% p.a.') : 'Not applied'}</span>
       <span class="ass"><strong>To:</strong> Age ${endAge}</span>
       <span class="ass"><strong>Basis:</strong> Illustrative — not advice</span>
     </div>
@@ -1189,14 +1226,15 @@ function runModel() {
         <tbody>`;
 
   years.forEach(y => {
-    const surplusClass = y.shortfall > 0 ? 'def' : (y.retired && y.surplus < 0 ? 'def' : 'sur');
-    const surplusVal = y.shortfall > 0 ? fmt(-y.shortfall) : (y.retired ? fmt(y.guaranteedInc - y.totalSpend) : '—');
+    const showSurplus = y.retired || y.spend > 0;
+    const surplusClass = y.shortfall > 0 ? 'def' : (showSurplus && y.surplus < 0 ? 'def' : 'sur');
+    const surplusVal = y.shortfall > 0 ? fmt(-y.shortfall) : (showSurplus ? fmt(y.guaranteedInc - y.totalSpend) : '—');
     html += `<tr class="${y.retired && !years[years.indexOf(y)-1]?.retired ? 'retire-yr' : ''}">
       <td>${y.age}${hasPartner && y.c2Age ? ' / ' + y.c2Age : ''}${y.retired && !years[years.indexOf(y)-1]?.retired ? ' ★' : ''}</td>
       <td>${y.empInc > 0 ? fmt(y.empInc) : '—'}</td>
       <td>${fmt(y.dbInc + y.spInc)}</td>
       <td>${fmt(y.guaranteedInc)}</td>
-      <td>${y.retired ? fmt(y.spend) : '—'}</td>
+      <td>${y.spend > 0 ? fmt(y.spend) : '—'}</td>
       <td>${y.lump > 0 ? fmt(y.lump) : '—'}</td>
       <td>${y.dcDraw > 0 ? fmt(y.dcDraw) : '—'}</td>
       <td>${y.isaDraw > 0 ? fmt(y.isaDraw) : '—'}</td>
@@ -1211,7 +1249,7 @@ function runModel() {
   });
 
   html += `</tbody>
-        <tfoot><tr><td colspan="15">★ Retirement year &nbsp;|&nbsp; Withdrawal order: DC/SIPP → ISA → GIA &nbsp;|&nbsp; Growth net of charges entered in Assumptions &nbsp;|&nbsp; Figures in today's money terms, inflated at ${v('assInflation')}% p.a. &nbsp;|&nbsp; Illustrative projection only — not financial advice.</td></tr></tfoot>
+        <tfoot><tr><td colspan="15">★ Retirement year &nbsp;|&nbsp; Withdrawal order: DC/SIPP → ISA → GIA &nbsp;|&nbsp; Growth net of charges entered in Assumptions &nbsp;|&nbsp; ${spendInflOn ? "Expenditure inflated at " + v('inflSpendRate') + "% p.a." : "Expenditure held flat \u2014 inflation not applied"} &nbsp;|&nbsp; Illustrative projection only — not financial advice.</td></tr></tfoot>
       </table>
     </div>`;
 
